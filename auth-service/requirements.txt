@@ -1,0 +1,12 @@
+Flask==3.0.0
+Flask-JWT-Extended==4.6.0
+Flask-SQLAlchemy==3.1.1
+psycopg2-binary==2.9.9
+pyotp==2.9.0
+pysaml2==7.5.0
+cryptography==42.0.5
+prometheus-flask-exporter==0.22.4
+opentelemetry-api==1.24.0
+opentelemetry-sdk==1.24.0
+opentelemetry-instrumentation-flask==0.45b0
+opentelemetry-exporter-otlp==1.24.0

@@ -1,0 +1,13 @@
+Flask==3.0.0
+Flask-RESTful==0.3.10
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+SQLAlchemy==2.0.25
+psycopg2-binary==2.9.9
+marshmallow==3.20.1
+flask-marshmallow==0.15.0
+prometheus-flask-exporter==0.22.4
+opentelemetry-api==1.24.0
+opentelemetry-sdk==1.24.0
+opentelemetry-instrumentation-flask==0.45b0
+opentelemetry-exporter-otlp==1.24.0

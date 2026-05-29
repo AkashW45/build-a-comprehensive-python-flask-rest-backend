@@ -1,0 +1,101 @@
+version: '3.8'
+services:
+  api-gateway:
+    build: ../api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - JWT_SECRET_KEY=dev-secret
+      - REDIS_URL=redis://redis:6379/0
+      - EMPLOYEE_SERVICE_URL=http://employee-service:5001
+      - DEPARTMENT_SERVICE_URL=http://department-service:5002
+      - PAYROLL_SERVICE_URL=http://payroll-service:5003
+      - LEAVE_SERVICE_URL=http://leave-service:5004
+      - PERFORMANCE_SERVICE_URL=http://performance-service:5005
+      - RECRUITMENT_SERVICE_URL=http://recruitment-service:5006
+      - INTEGRATION_SERVICE_URL=http://integration-service:5020
+      - COMPLIANCE_SERVICE_URL=http://compliance-service:5030
+    depends_on:
+      - redis
+
+  employee-service:
+    build: ../employee-service
+    environment:
+      - DATABASE_URL=postgresql://user:pass@postgres-primary:5432/employees
+    depends_on:
+      - postgres-primary
+
+  department-service:
+    build: ../department-service
+    environment:
+      - DATABASE_URL=postgresql://user:pass@postgres-primary:5432/departments
+    depends_on:
+      - postgres-primary
+
+  # ... other services (payroll, leave, performance, recruitment) would be similar
+
+  integration-service:
+    build: ../integration-service
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - SLACK_BOT_TOKEN=xxx
+      - SENDGRID_API_KEY=xxx
+      - AWS_ACCESS_KEY_ID=xxx
+      - AWS_SECRET_ACCESS_KEY=xxx
+      - S3_BUCKET=xxx
+      - STRIPE_SECRET_KEY=xxx
+      - ADP_API_URL=xxx
+    depends_on:
+      - redis
+
+  compliance-service:
+    build: ../compliance-service
+    environment:
+      - DATABASE_URL=postgresql://user:pass@postgres-primary:5432/compliance
+    depends_on:
+      - postgres-primary
+
+  auth-service:
+    build: ../auth-service
+    environment:
+      - DATABASE_URL=postgresql://user:pass@postgres-primary:5432/auth
+      - JWT_SECRET_KEY=dev-secret
+    depends_on:
+      - postgres-primary
+
+  postgres-primary:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_MULTIPLE_DATABASES: employees,departments,payroll,leaves,performance,recruitment,auth,compliance
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  postgres-replica:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    # Simplified; real replication setup needed
+
+  redis:
+    image: redis:7-alpine
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    volumes:
+      - ./otel-config.yml:/etc/otel/config.yaml
+
+volumes:
+  pgdata:

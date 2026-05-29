@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: employee-service
+  template:
+    metadata:
+      labels:
+        app: employee-service
+    spec:
+      containers:
+      - name: employee-service
+        image: hrm/employee-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://user:pass@postgres-primary:5432/employees"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-service
+spec:
+  selector:
+    app: employee-service
+  ports:
+  - port: 5001
+    targetPort: 5001
